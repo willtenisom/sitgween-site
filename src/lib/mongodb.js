@@ -2,9 +2,14 @@
 import { MongoClient } from "mongodb";
 import 'dotenv/config';
 
+const uri = process.env.MONGODB_URI;
 
-const uri = process.env.MONGODB_URI; // sua URI do MongoDB Atlas, coloque no .env.local
-const options = {};
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  tls: true,
+  // tlsAllowInvalidCertificates: true, // só usar para testes locais, desative em produção
+};
 
 let client;
 let clientPromise;
@@ -14,14 +19,14 @@ if (!uri) {
 }
 
 if (process.env.NODE_ENV === "development") {
-  // Em dev, usamos uma variável global para evitar múltiplas conexões no hot reload
+  // Em dev, usamos variável global para evitar múltiplas conexões no hot reload
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  // Em produção, conexão simples
+  // Em produção, conexão normal
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }

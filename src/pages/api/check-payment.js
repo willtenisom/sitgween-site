@@ -1,5 +1,7 @@
 import clientPromise from "../../lib/mongodb";
 
+console.log(process.env.MONGODB_URI)
+
 export default async function handler(req, res) {
   if (req.method !== "GET") {
     console.warn("[WARN] Método não permitido:", req.method);

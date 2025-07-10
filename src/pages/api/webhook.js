@@ -7,7 +7,6 @@ export const config = {
   api: { bodyParser: false },
 };
 
-// cria o transporter fora do handler para reuso e evitar recriação
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -35,24 +34,20 @@ export default async function handler(req, res) {
   let body;
   try {
     body = JSON.parse(bodyRaw);
+    console.log("[DEBUG] Body recebido no webhook:", body);
   } catch (err) {
     console.error("[ERROR] Body inválido:", err);
     return res.status(400).json({ error: "JSON inválido" });
   }
 
-  const paymentId =
-    req.query.id ||
-    req.query["data.id"] ||
-    body?.data?.id ||
-    body?.id ||
-    null;
+  const paymentId = body?.data?.id;
 
   if (!paymentId) {
-    console.error("[ERROR] Payment ID ausente");
+    console.error("[ERROR] Payment ID ausente no payload:", body);
     return res.status(400).json({ error: "Payment ID ausente" });
   }
 
-  console.log("[INFO] Webhook recebido:", { paymentId, query: req.query });
+  console.log("[INFO] Webhook recebido com PaymentID:", paymentId);
 
   try {
     const mpToken = process.env.MP_ACCESS_TOKEN;
@@ -61,13 +56,12 @@ export default async function handler(req, res) {
       headers: { Authorization: `Bearer ${mpToken}` },
     });
 
-    if (!mpRes.ok) {
-      const text = await mpRes.text();
-      console.error("[ERROR] MercadoPago fetch:", text);
-      return res.status(502).json({ error: "Falha ao consultar pagamento" });
-    }
-
     const payment = await mpRes.json();
+
+    if (!mpRes.ok) {
+      console.error("[ERROR] MercadoPago fetch:", payment);
+      return res.status(502).json({ error: "Falha ao consultar pagamento", details: payment });
+    }
 
     console.log("[INFO] Pagamento retornado:", payment);
 
@@ -96,7 +90,6 @@ export default async function handler(req, res) {
 
     const now = new Date();
 
-    // salva no mongo
     try {
       const db = (await clientPromise).db();
       await db.collection("pagamentos").updateOne(
@@ -119,7 +112,6 @@ export default async function handler(req, res) {
       console.error("[ERROR] MongoDB:", err);
     }
 
-    // só envia e-mail e sheets se aprovado
     if (status === "approved") {
       const textEmail = `
 💰 Novo pagamento aprovado!
