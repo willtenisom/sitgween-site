@@ -50,11 +50,12 @@ export default async function handler(req, res) {
           name: payerName,
           email,
         },
-        back_urls: {
-          success: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=success`,
-          failure: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=failure`,
-          pending: `${process.env.NEXT_PUBLIC_SITE_URL}/?status=pending`,
-        },
+       back_urls: {
+  success: "https://sitgween.vercel.app/?status=success",
+  failure: "https://sitgween.vercel.app/?status=failure",
+  pending: "https://sitgween.vercel.app/?status=pending"
+},
+        notification_url: "https://sitgween.vercel.app/api/webhook",
         auto_return: "approved",
         metadata: {
           buyer_friends: JSON.stringify(names),
