@@ -221,7 +221,7 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #4a0000, #7a0000);
   box-shadow: 0 0 25px #ff3300, inset 0 0 15px #7a0000;
-  color: #ffb347;
+  color: #ffb347; /* dourado */
   font-family: "Creepster", cursive;
   font-weight: bold;
   font-size: 18px;
@@ -237,19 +237,106 @@
   transition: all 0.4s ease;
 }
 
-/* Mobile para ticketBox */
-  .ticketBoxHover {
-    width: 90vw;
-    height: 90vw;
-    /* mantém a transição que você já tem */
-    transition: all 0.5s ease-in-out;
-    transform: scale(1); /* remove o scale aumentado no hover */
+.eventoBox h2 {
+  font-size: 28px;
+  margin-bottom: 12px;
+  color: #ff7518; /* laranja vibrante */
+  text-align: center;
+  text-shadow: 1px 1px 2px #a33c00; /* sombra para destaque */
+}
+
+.eventoBox p,
+.eventoBox .ticketText p {
+  font-size: 16px;
+  margin: 6px 0;
+  color: #ffb347; /* dourado suave */
+  line-height: 1.4;
+  text-align: center;
+  text-shadow: 0 0 3px #7a3a00; /* sombra leve para leitura */
+}
+
+.eventoBox .ticketText h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+  color: #ff9e3e; /* laranja dourado */
+  text-align: center;
+  text-shadow: 1px 1px 2px #803300; /* sombra para profundidade */
+}
+
+
+@media (max-width: 500px) {
+  .eventoBox {
+    background-color: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(2px);
+    overflow: hidden;
+
+    width: 90%;
+    max-width: 350px;
+    padding: 10px;
+    font-size: 12px; /* texto base menor */
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
-  /* Desativa o scale aumentado no hover para mobile */
-  .ticketBox:hover {
-    transform: none;
-  } 
+  .eventoBox h2 {
+    font-size: 14px; /* título menor */
+    color: #ff7518;
+    text-shadow: 1px 1px 2px #a33c00;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .ticketBox,
+  .ticketBoxHover {
+    width: 80%;
+    max-width: 250px;
+
+    aspect-ratio: auto;
+
+    border-radius: 50%;
+    margin: 10px auto;
+
+    overflow: visible;
+    padding: 15px;
+
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    transform: none !important;
+  }
+
+  .ticketText {
+    margin: 0;
+    padding: 0;
+    font-size: 12px; /* texto menor */
+    color: #ffb347;
+    text-shadow: 0 0 3px #7a3a00;
+  }
+
+  .ticketText h3 {
+    margin-bottom: 5px;
+    font-size: 14px; /* título menor */
+    color: #ff9e3e;
+    text-shadow: 1px 1px 2px #803300;
+  }
+
+  .ticketText p {
+    margin: 2px 0;
+    font-size: 12px; /* texto menor */
+    color: #ffb347;
+    text-shadow: 0 0 3px #7a3a00;
+  }
+}
+
+
+
 
 .ticketBoxHover {
   width: 350px;
@@ -332,6 +419,84 @@
 .closeFormButton:hover {
   background-color: #ff7518;
   color: white;
+}
+
+
+@media (max-width: 500px) {
+  .ticketBoxForm {
+    width: 90%;
+    max-width: 350px;
+    min-height: auto; /* deixa altura fluir conforme conteúdo */
+    margin: 10px auto;
+    border-radius: 25px;
+    box-shadow: 0 0 30px #ff7518, inset 0 0 20px #a33c00;
+    background: linear-gradient(135deg, #4a0000, #7a0000);
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    box-sizing: border-box;
+    overflow: visible; /* evita cortes de conteúdo */
+    transition: all 0.4s ease;
+  }
+
+  .ticketForm {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .ticketForm input {
+    width: 95%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    font-family: "Creepster", cursive;
+    box-sizing: border-box;
+  }
+
+  .payButton {
+    width: 95%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background-color: #ff7518cc;
+    color: white;
+    font-weight: bold;
+    font-family: "Creepster", cursive;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .payButton:hover {
+    background-color: #ff9e3ecc;
+  }
+
+  .closeFormButton {
+    padding: 6px 14px;
+    background: transparent;
+    border: 2px solid #ff7518;
+    color: #ff7518;
+    font-family: "Creepster", cursive;
+    border-radius: 15px;
+    cursor: pointer;
+    align-self: flex-end;
+    transition: all 0.3s ease;
+    font-size: 16px;
+  }
+
+  .closeFormButton:hover {
+    background-color: #ff7518;
+    color: white;
+  }
 }
 
 /* Imagem do halloween-cat */
