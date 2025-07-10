@@ -1,473 +1,333 @@
 import Head from "next/head";
-import { useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
+import styles from "../styles/Home.module.css";
+
+import SangueChuva from "../components/SangueChuva";
+import Morcego from "../components/Morcego";
+import Ads from "../components/Ads";
+
+import { v4 as uuidv4 } from "uuid";
 
 export default function Home() {
+  const router = useRouter();
+
+  const [phrase, setPhrase] = useState("Bem-vindo ao Stigween...");
+  const [paymentStatus, setPaymentStatus] = useState(null);
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState("idle");
+  const [touchTimeout, setTouchTimeout] = useState(null);
+  const [ticketCount, setTicketCount] = useState(1);
+  const [ticketNames, setTicketNames] = useState([""]);
+  const [paymentId, setPaymentId] = useState(null);
+
+  // Gera um clientId único uma vez
+  const clientId = useRef(uuidv4());
+
+  const leftEyeRef = useRef(null);
+  const rightEyeRef = useRef(null);
+  const meowAudio = useRef(null);
+
   useEffect(() => {
-    const pupils = document.querySelectorAll(".pupil");
+    meowAudio.current = new Audio("/cat-meow.mp3");
+  }, []);
 
+  useEffect(() => {
+    setTicketNames((old) => {
+      const next = [...old];
+      while (next.length < ticketCount) next.push("");
+      while (next.length > ticketCount) next.pop();
+      return next;
+    });
+  }, [ticketCount]);
+
+  const ticketTextAnimationClass = state === "hover" ? styles.glowPulse : "";
+
+  useEffect(() => {
+    const phrases = [
+      "O medo espreita na escuridão...",
+      "O gatinho observa seus passos...",
+      "Prepare-se para o inesperado...",
+      "A noite traz mistérios ocultos...",
+      "Sinta o arrepio da Stigween...",
+    ];
+    const interval = setInterval(() => {
+      setPhrase(phrases[Math.floor(Math.random() * phrases.length)]);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    const { status, payment_id } = router.query;
+    if (payment_id) {
+      setPaymentId(payment_id);
+    }
+    if (["success", "failure", "pending"].includes(status)) {
+      setPaymentStatus(status);
+      const nextQuery = { ...router.query };
+      delete nextQuery.status;
+      router.replace({ pathname: router.pathname, query: nextQuery }, undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    return () => {
+      if (touchTimeout) clearTimeout(touchTimeout);
+    };
+  }, [touchTimeout]);
+
+  useEffect(() => {
     function handleMouseMove(e) {
-      const { clientX, clientY } = e;
-      const maxOffset = 8;
+      if (!leftEyeRef.current || !rightEyeRef.current) return;
 
-      pupils.forEach((pupil) => {
-        const eye = pupil.parentElement;
-        if (!eye) return;
-
+      const updateEye = (eye, eX, eY) => {
         const rect = eye.getBoundingClientRect();
-        const eyeCenterX = rect.left + rect.width / 2;
-        const eyeCenterY = rect.top + rect.height / 2;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = eX - cx;
+        const dy = eY - cy;
+        const dist = Math.min(5, Math.hypot(dx, dy));
+        const angle = Math.atan2(dy, dx);
+        eye.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+      };
 
-        let offsetX = clientX - eyeCenterX;
-        let offsetY = clientY - eyeCenterY;
+      updateEye(leftEyeRef.current, e.clientX, e.clientY);
+      updateEye(rightEyeRef.current, e.clientX, e.clientY);
+    }
 
-        const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-        if (distance > maxOffset) {
-          const ratio = maxOffset / distance;
-          offsetX *= ratio;
-          offsetY *= ratio;
-        }
-
-        pupil.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-      });
+    function resetEyes() {
+      if (leftEyeRef.current) leftEyeRef.current.style.transform = "translate(0,0)";
+      if (rightEyeRef.current) rightEyeRef.current.style.transform = "translate(0,0)";
     }
 
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseleave", resetEyes);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseleave", resetEyes);
     };
   }, []);
 
+  const closeNotification = () => setPaymentStatus(null);
+
+  // Aqui enviamos o clientId único junto ao pedido
+  const handlePayment = async (e) => {
+    e.preventDefault();
+
+    if (!email.trim()) return alert("Por favor, preencha um e-mail válido.");
+    if (ticketNames.some((n) => !n.trim())) return alert("Preencha todos os nomes.");
+
+    try {
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: "Ingresso Stigween",
+          quantity: ticketCount,
+          price: 54.99,
+          email,
+          names: ticketNames,
+          clientId: clientId.current, // envia o clientId único
+        }),
+      });
+      if (!res.ok) throw new Error("Erro ao criar preferência");
+      const data = await res.json();
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else alert("Não foi possível obter o link.");
+    } catch (err) {
+      alert("Erro: " + err.message);
+    }
+  };
+
+  const handleTouchStart = () => {
+    if (state === "idle") {
+      setState("hover");
+      const t = setTimeout(() => {
+        if (state !== "form") setState("form");
+      }, 800);
+      setTouchTimeout(t);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchTimeout) {
+      clearTimeout(touchTimeout);
+      setTouchTimeout(null);
+    }
+  };
+
+  const handleClick = () => {
+    if (state !== "form") setState("form");
+    if (meowAudio.current) {
+      meowAudio.current.currentTime = 0;
+      meowAudio.current.play();
+    }
+  };
+
+  const handleNameChange = (i, v) => {
+    setTicketNames((old) => {
+      const next = [...old];
+      next[i] = v;
+      return next;
+    });
+  };
+
+  const getPhraseAnimationClass = (txt) => {
+    if (txt.includes("medo")) return styles.hauntedShadow;
+    if (txt.includes("gatinho")) return styles.flicker;
+    if (txt.includes("Prepare-se")) return styles.glowPulse;
+    if (txt.includes("Noite")) return styles.ghostShadow;
+    if (txt.includes("arrepio")) return styles.scaryShake;
+    return "";
+  };
+
+  // Opcional: consulta status periodicamente se pendente
+  useEffect(() => {
+    if (!paymentId || !clientId.current) return;
+
+    async function checkStatus() {
+      try {
+        const res = await fetch(`/api/payment-status?clientId=${clientId.current}`);
+        if (!res.ok) throw new Error("Erro ao buscar status");
+        const data = await res.json();
+        if (data.status && data.status !== paymentStatus) {
+          setPaymentStatus(data.status);
+        }
+      } catch {
+        // ignorar erros aqui
+      }
+    }
+
+    if (paymentStatus === "pending") {
+      const interval = setInterval(checkStatus, 10000); // a cada 10s
+      return () => clearInterval(interval);
+    }
+  }, [paymentId, paymentStatus]);
+
   return (
-    <div className="page-wrapper">
+    <div className={styles.pageWrapper}>
       <Head>
         <title>Stigween</title>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Creepster&display=swap"
-          rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet" />
       </Head>
 
-      <header>
-        <img
-          src="/stigween-banner.jpg"
-          alt="Stigween Banner"
-          className="banner"
-        />
+      <SangueChuva />
+      <Morcego />
+
+      {paymentStatus && (
+        <div className={styles.modalOverlay} onClick={closeNotification}>
+          <div
+            className={`${styles.modalContent} ${styles[paymentStatus]}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {paymentStatus === "success" && (
+              <>
+                <h2>🎃 O pacto está selado!</h2>
+                <p>As sombras aceitaram sua oferenda… seu ingresso foi conjurado com sucesso. Prepare-se para a noite em que os portões se abrem. 🕸️</p>
+              </>
+            )}
+            {paymentStatus === "failure" && (
+              <>
+                <h2>👻 Algo deu errado…</h2>
+                <p>Os espíritos recusaram seu tributo. Talvez seja hora de tentar novamente antes que a escuridão te encontre… 🦇</p>
+              </>
+            )}
+            {paymentStatus === "pending" && (
+              <>
+                <h2>🕯️ O ritual ainda não terminou…</h2>
+                <p>Seu pagamento está nas mãos dos oráculos. Aguarde um sinal em seu e-mail quando as forças decidirem. 🔮</p>
+              </>
+            )}
+            <button className={styles.closeModalBtn} onClick={closeNotification}>Fechar este portal ✨</button>
+          </div>
+        </div>
+      )}
+
+      <header className={styles.header}>
+        <img src="/stigween-banner.jpg" alt="Stigween Banner" className={styles.banner} />
       </header>
 
-      <div className="overlay">
-        <div className="blood-drop drop1"></div>
-        <div className="blood-drop drop2"></div>
-        <div className="blood-drop drop3"></div>
-        <div className="blood-drop drop4"></div>
-        <div className="blood-drop drop5"></div>
-        <div className="blood-drop drop6"></div>
-        <div className="blood-drop drop7"></div>
-        <div className="blood-drop drop8"></div>
-
-        <main>
-          <section>
-            <div className="evento-box">
-              <div className="ear left-ear"></div>
-              <div className="ear right-ear"></div>
-
-              <div className="eye left-eye">
-                <div className="pupil"></div>
-                <div className="eye-reflection"></div>
-              </div>
-              <div className="eye right-eye">
-                <div className="pupil"></div>
-                <div className="eye-reflection"></div>
-              </div>
-
-              <div className="whiskers whiskers-left">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-              <div className="whiskers whiskers-right">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-
-              <div className="nose"></div>
-
+      <main className={styles.main}>
+        <div className={styles.mainContent}>
+          <div className={styles.mainLeft}>
+            <div className={styles.eventoBox}>
               <h2>🕸️ Grande Evento Stigween</h2>
-              <p>
-                Venda começa em: <strong>10/10</strong>
-              </p>
-              <p>
-                Data do evento: <strong>01/11</strong>
-              </p>
+              <p className={`${styles.dynamicPhrase} ${getPhraseAnimationClass(phrase)}`}>{phrase}</p>
+              <p className={styles.hauntedShadow}>Venda começa em: <strong>10/07</strong></p>
+              <p className={styles.flicker}>Data do evento: <strong>01/11</strong></p>
+
+              <div className={styles.catContainer}>
+                <span ref={leftEyeRef} className={`${styles.catEye} ${styles.leftEye}`}></span>
+                <span ref={rightEyeRef} className={`${styles.catEye} ${styles.rightEye}`}></span>
+
+                <img src="/cat-mouth-closed.png" alt="Gato boca fechada" className={`${styles.catImage} ${state !== "form" ? styles.closed : ""}`} />
+                <img src="/cat-mouth-open.png" alt="Gato boca aberta" className={`${styles.catImage} ${state === "form" ? styles.open : ""}`} />
+              </div>
 
               <div
-                className="ingresso"
-                onClick={() => {
-                  const audio = new Audio("/cat-meow.mp3");
-                  audio.play();
-                }}
+                className={`${styles.ticketBox} 
+                  ${state === "hover" ? styles.ticketBoxHover : ""} 
+                  ${state === "form" ? styles.ticketBoxForm : ""}`}
+                onMouseEnter={() => state === "idle" && setState("hover")}
+                onMouseLeave={() => state === "hover" && setState("idle")}
+                onClick={handleClick}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
               >
-                <div className="text-wrapper">
-                  <h3>🎟️ Ingresso Promocional</h3>
-                  <div className="ticket-card">
-                    <p className="ticket-price">R$ 50</p>
-                    <p className="promo-end">Promoção termina em 24/07</p>
+                {state === "hover" && <div className={styles.ticketImage}></div>}
+
+                {state === "form" ? (
+                  <form className={styles.ticketForm} onClick={(e) => e.stopPropagation()} onSubmit={handlePayment}>
+                    <label className={styles.ticketQuantityLabel}>
+                      Quantidade de ingressos:
+                      <div className={styles.ticketQuantitySelector}>
+                        <button type="button" onClick={() => setTicketCount((c) => Math.max(1, c - 1))} className={styles.qtyBtn}>–</button>
+                        <span className={styles.qtyNumber}>{ticketCount}</span>
+                        <button type="button" onClick={() => setTicketCount((c) => Math.min(5, c + 1))} className={styles.qtyBtn}>+</button>
+                      </div>
+                    </label>
+
+                    {ticketNames.map((name, i) => (
+                      <input
+                        key={i}
+                        type="text"
+                        placeholder={`Nome completo #${i + 1}`}
+                        value={name}
+                        onChange={(e) => handleNameChange(i, e.target.value)}
+                        className={styles.ticketNameInput}
+                        required
+                      />
+                    ))}
+
+                    <input
+                      type="email"
+                      placeholder="E-mail (obrigatório)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                      className={styles.ticketEmailInput}
+                    />
+
+                    <button type="submit" className={styles.payButton}>🎃 PAGAR</button>
+                    <button type="button" className={styles.closeFormButton} onClick={() => setState("idle")}>✕ Fechar</button>
+                  </form>
+                ) : (
+                  <div className={`${styles.ticketText} ${ticketTextAnimationClass}`}>
+                    <h3>🎟️ INGRESSO — Para quem não teme a escuridão</h3>
+                    <p className={styles.scaryShake}>👻 PROMOÇÃO LIMITADA !</p>
+                    <p className={styles.hauntedShadow}>💰 Apenas <strong> R$ 54.99</strong></p>
                   </div>
-                </div>
-                <div className="mouth-image"></div>
-                <div className="blood-drip"></div>
+                )}
               </div>
             </div>
-          </section>
-        </main>
-      </div>
+          </div>
+        </div>
 
-      <style jsx>{`
-        .page-wrapper {
-          min-height: 100vh;
-          background: url("/background.jpg") center/cover no-repeat fixed;
-          position: relative;
-          font-family: "Creepster", cursive;
-          color: #fff;
-          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-          overflow-x: hidden;
-        }
-
-        header {
-          width: 100%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          padding: 10px 0;
-          background-color: rgba(0, 0, 0, 0.4);
-          position: relative;
-          z-index: 10;
-        }
-
-        .banner {
-          max-width: 902px;
-          width: 100%;
-          height: auto;
-          opacity: 0.7;
-        }
-
-        .overlay {
-          position: relative;
-          width: 100%;
-          padding: 20px 0 60px 0;
-          box-sizing: border-box;
-          display: flex;
-          justify-content: flex-start;
-          align-items: flex-start;
-          flex-direction: column;
-          z-index: 5;
-        }
-
-        /* Sangue caindo */
-        .blood-drop {
-          position: fixed;
-          top: -20px;
-          width: 12px;
-          height: 12px;
-          background: linear-gradient(180deg, #ff0000cc, #880000cc);
-          border-radius: 50%;
-          box-shadow: 0 0 15px #ff0000cc;
-          opacity: 0.8;
-          animation: drip 3s linear infinite;
-          z-index: 3;
-        }
-
-        .drop1 {
-          left: 10%;
-          animation-delay: 0s;
-        }
-        .drop2 {
-          left: 20%;
-          animation-delay: 0.7s;
-        }
-        .drop3 {
-          left: 35%;
-          animation-delay: 1.4s;
-        }
-        .drop4 {
-          left: 50%;
-          animation-delay: 2.1s;
-        }
-        .drop5 {
-          left: 60%;
-          animation-delay: 1.0s;
-        }
-        .drop6 {
-          left: 70%;
-          animation-delay: 2.7s;
-        }
-        .drop7 {
-          left: 80%;
-          animation-delay: 0.4s;
-        }
-        .drop8 {
-          left: 90%;
-          animation-delay: 1.8s;
-        }
-
-        @keyframes drip {
-          0% {
-            transform: translateY(0) scale(1);
-            opacity: 0.8;
-          }
-          80% {
-            transform: translateY(100vh) scale(0.5);
-            opacity: 0.3;
-          }
-          100% {
-            transform: translateY(110vh) scale(0);
-            opacity: 0;
-          }
-        }
-
-        main {
-          text-align: center;
-          width: 100%;
-          font-size: 28px;
-        }
-
-        .evento-box {
-          max-width: 600px;
-          margin: 90px auto 0 auto;
-          background: rgba(26, 26, 26, 0.7);
-          padding: 90px 60px;
-          position: relative;
-          border: 5px solid #ff7518;
-          color: #ffb347;
-          font-weight: 600;
-          border-radius: 40% 40% 45% 45% / 60% 60% 55% 55%;
-          box-shadow: 0 0 35px #ff7518, inset 0 0 25px #ff7518;
-        }
-
-        .ear {
-          position: absolute;
-          top: -60px;
-          width: 100px;
-          height: 100px;
-          background: linear-gradient(135deg, #ff7518, #d96d00);
-          border: 5px solid #ff7518;
-          border-radius: 55% 55% 25% 25% / 65% 65% 35% 35%;
-          box-shadow: 0 0 20px #ff7518;
-          z-index: 15;
-        }
-
-        .left-ear {
-          left: 60px;
-          transform: rotate(-15deg);
-        }
-        .right-ear {
-          right: 60px;
-          transform: rotate(15deg);
-        }
-
-        .eye {
-          position: absolute;
-          top: 40px;
-          width: 70px;
-          height: 40px;
-          background: radial-gradient(circle at 30% 50%, #ff0000, #8b0000);
-          border: 3px solid #ff7518;
-          border-radius: 50% / 70%;
-          box-shadow: 0 0 15px #ff0000;
-        }
-
-        .left-eye {
-          left: 120px;
-        }
-        .right-eye {
-          right: 120px;
-        }
-
-        .pupil {
-          position: absolute;
-          top: 7px;
-          width: 16px;
-          height: 26px;
-          background: black;
-          border-radius: 50% / 70%;
-          transition: transform 0.1s linear;
-        }
-
-        /* Ajuste bigodes para alinhamento simétrico */
-        .whiskers {
-          position: absolute;
-          top: 90px;
-          width: 90px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .whiskers-left {
-          left: 15px; /* alinhado um pouco mais para dentro */
-          align-items: flex-start;
-        }
-        .whiskers-right {
-          right: 15px; /* alinhado um pouco mais para dentro */
-          align-items: flex-end;
-        }
-
-        .whiskers span {
-          display: block;
-          width: 40px;
-          height: 2px;
-          background: linear-gradient(90deg, #ff7518, #d96d00);
-          box-shadow: 0 0 10px #ff7518;
-        }
-
-        .nose {
-          position: absolute;
-          top: 90px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 25px;
-          height: 20px;
-          background: linear-gradient(135deg, #d96d00, #ff7518);
-          border-radius: 50%;
-          border: 4px solid #ff7518;
-        }
-
-        /* INGRESSO */
-        .ingresso {
-          margin-top: 50px;
-          background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-          padding: 20px 25px;
-          border-radius: 40% / 30%;
-          border: 4px solid #ff7518;
-          box-shadow: 0 0 25px #ff7518, inset 0 0 15px #ff7518;
-          color: #ffb347;
-          font-weight: 600;
-          max-width: 320px;
-          margin-left: auto;
-          margin-right: auto;
-          position: relative;
-          cursor: pointer;
-          overflow: visible;
-
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          gap: 6px;
-
-          height: 90px;
-          transition: height 0.4s ease, border-radius 0.4s ease;
-        }
-
-        .ingresso:hover {
-          height: 220px;
-          border-radius: 20% / 30% 30% 70% 70%;
-        }
-
-        .text-wrapper {
-          transition: opacity 0.3s ease;
-          z-index: 20;
-          user-select: none;
-          text-align: center;
-        }
-
-        .ingresso:hover .text-wrapper {
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        .ingresso h3 {
-          margin: 0;
-          font-size: 24px;
-          line-height: 1.2;
-          text-shadow: 0 0 10px #ff7518;
-          white-space: nowrap;
-        }
-
-        .ticket-card {
-          margin: 0;
-          padding: 0;
-          background: transparent;
-          color: #ffb347;
-          font-size: 20px;
-          user-select: none;
-        }
-
-        .ticket-price {
-          margin: 0;
-          font-weight: 700;
-          font-size: 26px;
-          text-shadow: 0 0 10px #ff0000;
-          white-space: nowrap;
-        }
-
-        .promo-end {
-          margin-top: 8px;
-          font-size: 14px;
-          font-weight: 600;
-          color: #ff5555;
-          text-shadow: 0 0 7px #ff0000aa;
-          white-space: nowrap;
-        }
-
-        /* Imagem boca */
-        .mouth-image {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          height: 0;
-          background: url("/halloween-cat.jpg") center/cover no-repeat;
-          opacity: 0;
-          transition: height 0.4s ease, opacity 0.4s ease;
-          border-radius: 0 0 70% 70% / 0 0 100% 100%;
-          z-index: 10;
-          pointer-events: none;
-        }
-
-        .ingresso:hover .mouth-image {
-          height: 180px;
-          opacity: 1;
-        }
-
-        /* Sangue escorrendo */
-        .blood-drip {
-          position: absolute;
-          bottom: 8px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 12px;
-          height: 35px;
-          background: linear-gradient(180deg, #ff0000cc, #800000cc);
-          border-radius: 50% / 70%;
-          box-shadow: 0 0 8px #ff0000cc;
-          opacity: 0;
-          animation: blood-drip-fall 1.8s ease-in-out infinite;
-          z-index: 12;
-          pointer-events: none;
-        }
-
-        .ingresso:hover .blood-drip {
-          opacity: 1;
-        }
-
-        @keyframes blood-drip-fall {
-          0% {
-            transform: translateX(-50%) translateY(0) scaleY(1);
-            opacity: 1;
-          }
-          80% {
-            transform: translateX(-50%) translateY(40px) scaleY(1.3);
-            opacity: 0.5;
-          }
-          100% {
-            transform: translateX(-50%) translateY(50px) scaleY(1);
-            opacity: 0;
-          }
-        }
-      `}</style>
+        <Ads />
+      </main>
     </div>
   );
 }

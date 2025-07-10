@@ -1,0 +1,14 @@
+.bat {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+  pointer-events: none;
+  user-select: none;
+  z-index: 9998;
+}
+
+.visible {
+  opacity: 1;
+}

@@ -1,0 +1,633 @@
+/* styles/Home.module.css */
+
+.pageWrapper {
+  min-height: 100vh;
+  position: relative;
+  /* cor e fonte já no global */
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 10;
+}
+
+.banner {
+  max-width: 902px;
+  width: 100%;
+  height: auto;
+  opacity: 0.7;
+}
+
+.overlay {
+  position: relative;
+  width: 100%;
+  padding: 20px 0 60px 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  z-index: 5;
+}
+
+.mainContent {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+  justify-content: center; /* para centralizar horizontalmente */
+}
+
+.mainLeft {
+  flex: 1;
+  max-width: 600px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .mainContent {
+    flex-direction: column;
+    align-items: center; /* centralizar itens verticalmente */
+  }
+
+  .mainLeft {
+    width: 90%;
+    max-width: 350px;
+  }
+}
+
+/* Evento Box */
+.eventoBox {
+  width: 100%;
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px 15px;
+  background: #1a1a1a;
+  color: #ff7518;
+  text-align: center;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 117, 24, 0.4);
+  font-family: 'Creepster', cursive;
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 400;
+  user-select: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.eventoBox:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 25px rgba(255, 117, 24, 0.6);
+}
+
+.eventoBox h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+/* Mobile para eventoBox */
+@media (max-width: 500px) {
+  .eventoBox {
+    /* Já está translúcida */
+    background-color: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(2px);
+     overflow: hidden; /* impede que o conteúdo ultrapasse a div pai no mobile */
+
+    /* Tamanho */
+    width: 90%;
+    max-width: 350px; /* reduzido */
+    padding: 10px;
+    font-size: 14px;
+
+    /* Título dentro dela */
+  }
+
+  .eventoBox h2 {
+    font-size: 20px;
+  }
+}
+
+/* 🐱 Container do gato */
+.catContainer {
+  width: 100%;
+  text-align: center;
+  margin: 10px 0 20px 0; /* espaço entre mensagens e ingresso */
+  position: relative;
+  height: 150px; /* altura suficiente para conter os olhos e imagens */
+}
+
+/* Imagem base do gato */
+.catImage {
+  max-width: 240px;
+  height: auto;
+  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+  position: relative;
+  z-index: 2;
+  opacity: 1;
+  visibility: visible;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Estado Fechada (visível quando state !== form) */
+.closed {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Estado Aberta (visível quando state === form) */
+.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Escondidas — a correção aqui é usar seletores corretos */
+/* Isso esconde a imagem que não está ativa */
+.catImage:not(.closed):not(.open) {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* Olhos vermelhos minúsculos */
+.catEye {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: red;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: transform 0.1s ease-out;
+  z-index: 10;
+  box-shadow: 0 0 5px 1px rgba(255, 0, 0, 0.8);
+}
+
+/* Posição fixa dos olhos (ajustar % para alinhar exatamente nos olhos da imagem) */
+.leftEye {
+  top: 80%;
+  left: 45%;
+}
+
+.rightEye {
+  top: 80%;
+  left: 54%;
+}
+
+/* Mobile */
+@media (max-width: 500px) {
+  .catContainer {
+    height: 100px; /* altura reduzida para mobile */
+  }
+
+  .catImage {
+    max-width: 193px;
+  }
+
+  /* Ajuste da posição dos olhos só no mobile */
+  .leftEye {
+    top: 95%; /* altura maior no mobile */
+    left: 43%;
+  }
+  .rightEye {
+    top: 94%;
+    left: 56%;
+  }
+}
+
+
+/* Ticket Box */
+.ticketBox {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4a0000, #7a0000);
+  box-shadow: 0 0 25px #ff3300, inset 0 0 15px #7a0000;
+  color: #ffb347;
+  font-family: "Creepster", cursive;
+  font-weight: bold;
+  font-size: 18px;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: all 0.4s ease;
+}
+
+/* Mobile para ticketBox */
+  .ticketBoxHover {
+    width: 90vw;
+    height: 90vw;
+    /* mantém a transição que você já tem */
+    transition: all 0.5s ease-in-out;
+    transform: scale(1); /* remove o scale aumentado no hover */
+  }
+
+  /* Desativa o scale aumentado no hover para mobile */
+  .ticketBox:hover {
+    transform: none;
+  } 
+
+.ticketBoxHover {
+  width: 350px;
+  height: 350px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  transition: all 0.5s ease-in-out;
+  transform: scale(1.05);
+}
+
+.ticketBoxForm {
+  width: 100%;
+  max-width: 400px;
+  min-height: 500px;
+  margin: 0 auto;
+  border-radius: 30px;
+  box-shadow: 0 0 40px #ff7518, inset 0 0 30px #a33c00;
+  background: linear-gradient(135deg, #4a0000, #7a0000);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.ticketForm {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.ticketForm input {
+  width: 90%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  font-family: "Creepster", cursive;
+  box-sizing: border-box;
+}
+
+.payButton {
+  width: 90%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background-color: #ff7518cc;
+  color: white;
+  font-weight: bold;
+  font-family: "Creepster", cursive;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.payButton:hover {
+  background-color: #ff9e3ecc;
+}
+
+.closeFormButton {
+  padding: 6px 14px;
+  background: transparent;
+  border: 2px solid #ff7518;
+  color: #ff7518;
+  font-family: "Creepster", cursive;
+  border-radius: 15px;
+  cursor: pointer;
+  align-self: flex-end;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.closeFormButton:hover {
+  background-color: #ff7518;
+  color: white;
+}
+
+/* Imagem do halloween-cat */
+.ticketImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("/halloween-cat.jpg") center/cover no-repeat;
+  opacity: 0.95;
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  box-sizing: border-box;
+}
+
+/* Não mostra a imagem no formulário */
+.ticketBoxForm .ticketImage {
+  display: none;
+}
+
+/* quantidade do ticket */
+.ticketQuantityLabel {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Creepster', cursive;
+  color: #ff7518;
+  font-size: 1rem;
+  margin-bottom: 0.8rem;
+  user-select: none;
+  align-items: center;  /* centraliza */
+}
+
+.ticketQuantitySelector {
+  margin-top: 0.3rem;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #ff7518;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100px; /* menor largura */
+  background-color: #1a1a1a;
+  box-shadow: 0 0 8px #ff7518aa;
+  justify-content: center;
+}
+
+.qtyBtn {
+  background: transparent;
+  border: none;
+  color: #ff7518;
+  font-size: 1.4rem;
+  padding: 0 0.6rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  user-select: none;
+}
+
+.qtyBtn:hover {
+  background-color: #ff751833;
+}
+
+.qtyNumber {
+  color: #ff7518;
+  font-size: 1.2rem;
+  width: 40px;
+  text-align: center;
+  user-select: none;
+  font-weight: 700;
+}
+
+.ticketNameInput,
+.ticketEmailInput {
+  width: 100%;
+  margin-bottom: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 2px solid #ff7518;
+  background-color: #1a1a1a;
+  color: #ff7518;
+  font-family: 'Creepster', cursive;
+  outline: none;
+  box-shadow: 0 0 6px #ff7518aa;
+  transition: border-color 0.3s ease;
+}
+
+.ticketNameInput:focus,
+.ticketEmailInput:focus {
+  border-color: #ffa040;
+  box-shadow: 0 0 10px #ffa040aa;
+}
+
+.payButton {
+  background-color: #ff7518;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  font-family: 'Creepster', cursive;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-radius: 8px;
+  margin-top: 0.8rem;
+  box-shadow: 0 0 10px #ff7518cc;
+  transition: background-color 0.3s ease;
+}
+
+.payButton:hover {
+  background-color: #ffa040;
+  box-shadow: 0 0 14px #ffa040cc;
+}
+
+.closeFormButton {
+  margin-left: 1rem;
+  background: transparent;
+  border: 2px solid #ff7518;
+  color: #ff7518;
+  font-family: 'Creepster', cursive;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.closeFormButton:hover {
+  background-color: #ff7518;
+  color: #1a1a1a;
+}
+
+
+/* Evento de animação para mensagens de Halloween */
+/* Aqui estão os efeitos de animação para as mensagens de Halloween */
+
+/* --- 1. Sombra "assombrada" tremendo (efeito haunted shadow) ---
+   Faz a sombra da mensagem "tremeluzir", simulando uma aura assombrada */
+.eventoBox p.hauntedShadow {
+  animation: hauntedShadow 2s infinite alternate ease-in-out;
+  color: #ff7518;
+  text-shadow:
+    0 0 5px #ff7518,
+    0 0 10px #ff7518,
+    0 0 20px #ff3300;
+}
+
+@keyframes hauntedShadow {
+  0% {
+    text-shadow:
+      0 0 5px #ff7518,
+      0 0 10px #ff7518,
+      0 0 20px #ff3300;
+  }
+  100% {
+    text-shadow:
+      1px 1px 10px #ff7518,
+      -1px -1px 15px #ff3300,
+      0 0 25px #ff7518;
+  }
+}
+
+/* --- 2. Flicker (pisca de vela/tremulação de luz) ---
+   Pisca suavemente alternando opacidade e sombra, simulando luz de vela */
+.eventoBox p.flicker {
+  color: #ff7518;
+  animation: flicker 3s infinite;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 8px #ff7518, 0 0 15px #ff3300;
+  }
+  20%, 22%, 24%, 55% {
+    opacity: 0.6;
+    text-shadow: none;
+  }
+}
+
+/* --- 3. Glowing pulse (brilho mágico pulsante) ---
+   Cria um brilho crescente e decrescente que dá efeito místico */
+.eventoBox p.glowPulse {
+  color: #ff7518;
+  animation: glowPulse 3s ease-in-out infinite;
+  text-shadow: 0 0 10px #ff7518;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    text-shadow:
+      0 0 5px #ff7518,
+      0 0 15px #ff7518,
+      0 0 30px #ff3300;
+  }
+  50% {
+    text-shadow:
+      0 0 10px #ff7518,
+      0 0 25px #ff3300,
+      0 0 40px #ff7518;
+  }
+}
+
+/* --- 4. Sombra fantasma com movimento lento ---
+   Mensagem com sombra escura que se move lentamente, como um fantasma */
+.eventoBox p.ghostShadow {
+  position: relative;
+  color: #ff7518;
+  animation: ghostShadow 4s infinite ease-in-out;
+}
+
+@keyframes ghostShadow {
+  0%, 100% {
+    text-shadow:
+      0 0 3px #ff7518,
+      3px 3px 6px rgba(0,0,0,0.9);
+  }
+  50% {
+    text-shadow:
+      0 0 3px #ff7518,
+      -3px -3px 6px rgba(0,0,0,0.9);
+  }
+}
+
+/* --- 5. Tremor + cor oscilando (efeito suspense) ---
+   Pequeno tremor na mensagem com cor oscilante entre laranja e vermelho */
+.eventoBox p.scaryShake {
+  color: #ff7518;
+  animation: scaryShake 1.2s infinite ease-in-out;
+  display: inline-block; /* necessário para aplicar transform */
+}
+
+@keyframes scaryShake {
+  0%, 100% {
+    transform: translate(0);
+    color: #ff7518;
+  }
+  25% {
+    transform: translate(1px, -1px);
+    color: #ff3300;
+  }
+  50% {
+    transform: translate(-1px, 1px);
+    color: #ff7518;
+  }
+  75% {
+    transform: translate(1px, 1px);
+    color: #ff3300;
+  }
+}
+
+/* --- status de requisição de pagamento ---*/
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(6px);
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modalContent {
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 2rem;
+  color: #fff;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 0 15px rgba(0,0,0,0.8);
+}
+
+.modalContent.success {
+  border: 2px solid #4caf50;
+  color: #4caf50;
+}
+
+.modalContent.failure {
+  border: 2px solid #f44336;
+  color: #f44336;
+}
+
+.modalContent.pending {
+  border: 2px solid #ff9800;
+  color: #ff9800;
+}
+
+.closeModalBtn {
+  margin-top: 1rem;
+  background: transparent;
+  border: 1px solid #fff;
+  color: #fff;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+}

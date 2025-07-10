@@ -1,0 +1,130 @@
+.adsContainer {
+  position: fixed;
+  top: 250px;
+  right: 20px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.adBox {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.adItem {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 8px;
+  padding: 0.3rem;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,0,0,0.4);
+  transition: transform 0.2s ease;
+  text-align: center;
+}
+
+.adItem:hover {
+  transform: scale(1.05);
+}
+
+.adItem img {
+  max-width: 120px;
+  display: block;
+  margin: 0 auto;
+}
+
+.adText {
+  font-size: 0.75rem;
+  color: #fff5e1;
+}
+
+/* Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 30;
+}
+
+.modalContent {
+  background: #1a1a1a;
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: auto;
+  position: relative;
+}
+
+.modalContent img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.closeModal {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+  .adsContainer {
+    position: static;
+    top: auto;
+    right: auto;
+    margin: 20px auto;
+    width: 95%;
+    max-width: 400px;
+    z-index: 10;
+    display: flex;            /* garante flexbox */
+    flex-direction: row;      /* itens na horizontal */
+    justify-content: center;  /* centraliza horizontalmente */
+    align-items: center;      /* centraliza verticalmente */
+  }
+
+  .adBox {
+    display: flex;            /* flexbox para os ads */
+    flex-direction: row;      /* horizontal */
+    flex-wrap: nowrap;        /* sem quebra de linha */
+    gap: 10px;                /* espaçamento entre ads */
+    justify-content: center;  /* centraliza os ads */
+    width: 100%;
+  }
+
+  .adItem {
+    max-width: 80px;
+    flex-shrink: 0;           /* impede encolher */
+    display: flex;            /* flex para alinhar img e texto */
+    flex-direction: column;
+    align-items: center;      /* centraliza conteúdo interno */
+  }
+
+  .adItem img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain; /* mantem proporção sem cortar */
+}
+
+  .adText {
+    font-size: 10px;
+    margin-top: 2px;
+    text-align: center;
+  }
+
+  .adItem:hover {
+    transform: none;
+  }
+}
