@@ -22,8 +22,6 @@ Inclui sistema de ingressos promocionais, integração com **Mercado Pago**, env
 
 ```
 /
-├── .next/                        # Build gerada pelo Next.js
-├── node_modules/
 ├── public/
 │   └── (imagens, sons, etc)
 ├── src/
