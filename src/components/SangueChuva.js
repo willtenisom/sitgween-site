@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "../styles/SangueChuva.module.css"; // vamos usar CSS separado
+import styles from "../styles/SangueChuva.module.css"; 
 
 export default function SangueChuva() {
   const [gotas, setGotas] = useState([]);

@@ -31,7 +31,7 @@ export default function Ads() {
             <span
               className={styles.adText}
               style={{
-                color: "#ff7518", // laranja temático
+                color: "#ff7518", 
                 fontWeight: "bold",
                 textShadow: "1px 1px 3px black",
               }}
