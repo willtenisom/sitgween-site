@@ -103,7 +103,7 @@ http://localhost:3000
 
 | 🐱 Gato com olhos seguindo o mouse | 💀 Gato com boca aberta | 
 |-------------------------------------|--------------------------|---------------|------------------|
-| ![Gato normal](public/cat-mouth-closed.png) | ![Boca aberta](public/cat-mouth-open.png.png)|
+| ![Gato normal](public/cat-mouth-closed.png) | ![Boca aberta](public/cat-mouth-open.png)|
 
 
 
